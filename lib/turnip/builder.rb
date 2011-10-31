@@ -24,12 +24,13 @@ module Turnip
       include Tags
       include Name
 
-      attr_reader :scenarios, :backgrounds
+      attr_reader :scenarios, :backgrounds, :step_modules
 
       def initialize(raw)
         @raw = raw
         @scenarios = []
         @backgrounds = []
+        @step_modules = []
       end
 
       def metadata_hash
@@ -81,6 +82,15 @@ module Turnip
       end
     end
 
+    class StepModule
+      attr_accessor :line, :module_name
+
+      def initialize(module_name, line)
+        self.module_name = module_name
+        self.line = line
+      end
+    end
+
     attr_reader :features
 
     class << self
@@ -124,6 +134,12 @@ module Turnip
       @current_step_context.steps << step.name
     end
 
+    def use(use)
+      step_modules = use.modules.map do |module_name|
+        StepModule.new(module_name, use.line)
+      end
+      @current_feature.step_modules.concat(step_modules)
+    end
     def eof
     end
   end

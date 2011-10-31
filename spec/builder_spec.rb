@@ -27,4 +27,14 @@ describe Turnip::Builder do
       ])
     end
   end
+
+  context "with step modules" do
+    let(:gherkin) { File.read(File.expand_path('../examples/uses_step_modules.feature', File.dirname(__FILE__))) }
+    let(:builder) { Turnip::Builder.build(gherkin) }
+    let(:feature) { builder.features.first }
+
+    it "extracts the step modules" do
+      feature.step_modules[0].module_name.should eq('ferocious_attack')
+    end
+  end
 end
