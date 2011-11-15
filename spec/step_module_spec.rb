@@ -58,17 +58,29 @@ describe Turnip::StepModule do
       end
     end
 
-    it 'creates an anonymous module' do
-      subject.name.should be_nil
-    end
-
     it 'extends the steps DSL' do
       subject.should be_kind_of(Turnip::StepModule::DSL)
     end
 
-    it 'executes the block in the module' do
-      subject
-      subject.instance_methods.should include(:marker)
+    if RUBY_ENGINE == 'rbx'
+      # rbx 2.0-pre behavior (1.9 compat may change this?)
+      it 'creates an anonymous module' do
+        subject.name.should eq('')
+      end
+
+      it 'executes the block in the module' do
+        subject
+        subject.instance_methods.should include('marker')
+      end
+    else
+      it 'creates an anonymous module' do
+        subject.name.should be_nil
+      end
+
+      it 'executes the block in the module' do
+        subject
+        subject.instance_methods.should include(:marker)
+      end
     end
   end
 
