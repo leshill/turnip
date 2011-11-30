@@ -3,6 +3,7 @@ require "gherkin/formatter/tag_count_formatter"
 
 require "turnip/version"
 require "turnip/dsl"
+require "turnip/example_group"
 
 require 'rspec'
 
@@ -28,9 +29,8 @@ module Turnip
 
           feature.backgrounds.each do |background|
             before do
-              background.steps.each do |step|
-                Turnip::StepDefinition.execute(self, Turnip::StepModule.all_steps_for(*feature_tags), step)
-              end
+              load_steps_for(*feature_tags)
+              execute_steps(background.steps)
             end
           end
           feature.scenarios.each do |scenario|
@@ -40,9 +40,8 @@ module Turnip
               Turnip::StepModule.modules_for(*scenario_tags).each { |mod| include mod }
 
               it scenario.name do
-                scenario.steps.each do |step|
-                  Turnip::StepDefinition.execute(self, Turnip::StepModule.all_steps_for(*scenario_tags), step)
-                end
+                load_steps_for(*scenario_tags)
+                execute_steps(scenario.steps)
               end
             end
           end
@@ -58,6 +57,7 @@ RSpec::Core::Configuration.send(:include, Turnip::Loader)
 
 RSpec.configure do |config|
   config.pattern << ",**/*.feature"
+  config.include Turnip::ExampleGroup, :turnip => true
 end
 
 self.extend Turnip::DSL
